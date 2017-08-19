@@ -1,3 +1,3 @@
-bin_PROGRAMS=a.out
+bin_PROGRAMS=shredder
 a_out_SOURCES=shredder.cpp
 
