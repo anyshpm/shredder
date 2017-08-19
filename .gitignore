@@ -19,6 +19,7 @@ configure
 depcomp
 install-sh
 missing
+compile
 
 # Prerequisites
 *.d
@@ -52,3 +53,4 @@ missing
 *.exe
 *.out
 *.app
+src/shredder

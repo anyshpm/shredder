@@ -8,7 +8,7 @@ AC_ARG_WITH([wxwidgets-prefix],
 		[search for wxwidgets in PATH]
     )],
     [
-        LIBS="$LIBS $($withval/bin/wx-config --libs)"
+        LIBS="$LIBS $($withval/bin/wx-config --libs core)"
         CXXFLAGS="$CXXFLAGS $($withval/bin/wx-config --cxxflags)"
     ],
     []
