@@ -8,8 +8,8 @@ AC_ARG_WITH([wxwidgets-prefix],
 		[search for wxwidgets in PATH]
     )],
     [
-        LIBS="$LIBS $($withval/bin/wx-config --libs core)"
-        CXXFLAGS="$CXXFLAGS $($withval/bin/wx-config --cxxflags)"
+        LIBS="$LIBS $($withval/bin/wx-config --libs)"
+        CXXFLAGS="$CXXFLAGS $($withval/bin/wx-config --cxxflags) -g"
     ],
     []
 )
@@ -19,5 +19,5 @@ AM_INIT_AUTOMAKE()
 
 AC_PROG_CXX
 
-AC_CONFIG_FILES(Makefile src/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile src/tbtest/Makefile)
 AC_OUTPUT
