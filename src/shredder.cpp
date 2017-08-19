@@ -11,6 +11,10 @@
 #include <wx/wx.h>
 #include <wx/iconloc.h>
 #include <wx/taskbar.h>
+#include <wx/filefn.h>
+#include <wx/filename.h>
+#include <wx/dir.h>
+#include <list>
 
 class ShredderTaskBarIcon: public wxTaskBarIcon
 {
@@ -23,7 +27,6 @@ class ShredderTaskBarIcon: public wxTaskBarIcon
     protected:
         virtual wxMenu *CreatePopupMenu()
         {
-            // 每次都要 new 一个新的 wxMenu
             wxMenu *popupMenu = new wxMenu();
             popupMenu->Append(wxID_ABOUT, _("About"));
             popupMenu->AppendSeparator();
@@ -38,13 +41,90 @@ class ShredderTaskBarIcon: public wxTaskBarIcon
 class Shredder: public wxApp
 {
     public:
+        static int EraseFileContent(wxString file)
+        {
+            wxString path;
+            wxString name;
+            wxString x;
+
+            wxFileName::SplitPath(file, NULL, &path, &name, NULL);
+            x = name;
+
+            wxFileName::GetVolumeSeparator();
+            //TODO: 
+            return wxRemoveFile(file);
+        }
+
+        static int DeleteFile(wxString file)
+        {
+            if (wxDirExists(file) == true)
+            {
+                wxMessageBox(_T("确定要删除目录：") + file, _T("确认"), wxOK | wxICON_INFORMATION);
+                std::list<wxString> fl;
+                fl.push_back(file);
+                while (fl.size() > 0)
+                {
+                    wxString fn;
+                    wxString subfn;
+                    fn = fl.back();
+                    wxDir dir(fn);
+                    bool hasSubFile = false;
+
+                    if (dir.GetFirst(&subfn) == true)
+                    {
+                        do
+                        {
+                            wxString filename = dir.GetNameWithSep() + subfn;
+                            if (wxDirExists(filename) == true)
+                            {
+                                fl.push_back(filename);
+                                hasSubFile = true;
+                            }
+                            else if (wxFileExists(filename) == true)
+                            {
+                                Shredder::EraseFileContent(filename);
+                            }
+                            //wxMessageBox(filename, _T("成功"), wxOK | wxICON_INFORMATION);
+                        }
+                        while (dir.GetNext(&subfn) == true);
+                    }
+
+                    if (hasSubFile == false)
+                    {
+                        fl.pop_back();
+                        wxRmdir(fn);
+                    }
+                }
+            }
+            else if (wxFileExists(file) == true)
+            {
+                wxMessageBox(_T("确定要删除文件：") + file, _T("确认"), wxOK | wxICON_INFORMATION);
+                if (Shredder::EraseFileContent(file) == true)
+                {
+                    wxMessageBox(_T("删除成功！"), _T("成功"), wxOK | wxICON_INFORMATION);
+                }
+                else
+                {
+                    wxMessageBox(_T("删除失败！"), _T("错误"), wxOK | wxICON_INFORMATION);
+                }
+            }
+            else
+            {
+                wxMessageBox(_T("文件或目录不存在！"), _T("错误"), wxOK | wxICON_INFORMATION);
+            }
+        }
+
         virtual bool OnInit ()
         {
             trayIcon = new ShredderTaskBarIcon();
             trayIcon->SetIcon(wxIcon("icon.bmp"));
-            return true ;
+
+            Shredder::DeleteFile(argv[1]);
+
+            return false;
         }
-        ~Shredder()
+
+        virtual int OnExit()
         {
             if (trayIcon != NULL)
             {
@@ -54,6 +134,11 @@ class Shredder: public wxApp
 
     private:
         ShredderTaskBarIcon* trayIcon;
+
+        void debug(wxString s)
+        {
+            wxMessageBox(s, _T("DEBUG!"), wxOK | wxICON_INFORMATION);
+        }
 };
 
 BEGIN_EVENT_TABLE(ShredderTaskBarIcon, wxTaskBarIcon)  
