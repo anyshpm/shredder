@@ -8,8 +8,12 @@ AC_ARG_WITH([wxwidgets-prefix],
 		[search for wxwidgets in PATH]
     )],
     [
-        LIBS="$LIBS $($withval/bin/wx-config --libs)"
-        CXXFLAGS="$CXXFLAGS $($withval/bin/wx-config --cxxflags) -g"
+        # This will always add value to CXXFLAGS in Makefile
+        WX_CONFIG_CXXFLAGS="$($withval/bin/wx-config --cxxflags) -g"
+        AC_SUBST(WX_CONFIG_CXXFLAGS)
+        # This will always add value to LIBS in Makefile
+        WX_CONFIG_LIBSS="$($withval/bin/wx-config --libs)"
+        AC_SUBST(WX_CONFIG_LIBS)
     ],
     []
 )
