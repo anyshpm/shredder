@@ -8,6 +8,7 @@
  ============================================================================
  */
 
+#include <cstdio>
 #include <wx/wx.h>
 #include <wx/iconloc.h>
 #include <wx/taskbar.h>
@@ -43,15 +44,21 @@ class Shredder: public wxApp
     public:
         static int EraseFileContent(wxString file)
         {
-            wxString path;
-            wxString name;
-            wxString x;
+            FILE* f;
+            long long i;
 
-            wxFileName::SplitPath(file, NULL, &path, &name, NULL);
-            x = name;
+            f = fopen(file.c_str(), "a+");
+            fseek(f, 0, SEEK_END);
+            i = ftell(f);
+            fclose(f);
+            f = fopen(file.c_str(), "w+");
+            while (i > 0)
+            {
+                fwrite("00000000", 8, 1, f);
+                i -= 8;
+            }
+            fclose(f);
 
-            wxFileName::GetVolumeSeparator();
-            //TODO: 
             return wxRemoveFile(file);
         }
 
@@ -84,7 +91,6 @@ class Shredder: public wxApp
                             {
                                 Shredder::EraseFileContent(filename);
                             }
-                            //wxMessageBox(filename, _T("成功"), wxOK | wxICON_INFORMATION);
                         }
                         while (dir.GetNext(&subfn) == true);
                     }
@@ -119,7 +125,14 @@ class Shredder: public wxApp
             trayIcon = new ShredderTaskBarIcon();
             trayIcon->SetIcon(wxIcon("icon.bmp"));
 
-            Shredder::DeleteFile(argv[1]);
+            if (argc > 1)
+            {
+                Shredder::DeleteFile(argv[1]);
+            }
+            else
+            {
+                wxMessageBox(_T("文件或目录不存在！"), _T("错误"), wxOK | wxICON_INFORMATION);
+            }
 
             return false;
         }

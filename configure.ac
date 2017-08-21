@@ -1,18 +1,19 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(shredder, 1.0)
+AC_INIT([shredder], [0.1], [anyshpm@anyshpm.com])
 
 AC_ARG_WITH([wxwidgets-prefix],
 	[AS_HELP_STRING([--with-wxwidgets-prefix=PATH],
 		[search for wxwidgets in PATH]
     )],
     [
-        # This will always add value to CXXFLAGS in Makefile
-        WX_CONFIG_CXXFLAGS="$($withval/bin/wx-config --cxxflags) -g"
+        dnl This will always add value to CXXFLAGS in Makefile
+        WX_CONFIG_CXXFLAGS="$($withval/bin/wx-config --cxxflags)"
         AC_SUBST(WX_CONFIG_CXXFLAGS)
-        # This will always add value to LIBS in Makefile
-        WX_CONFIG_LIBSS="$($withval/bin/wx-config --libs)"
+
+        dnl This will always add value to LIBS in Makefile
+        WX_CONFIG_LIBS="$($withval/bin/wx-config --libs)"
         AC_SUBST(WX_CONFIG_LIBS)
     ],
     []
